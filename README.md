@@ -1,6 +1,7 @@
 # thetvdb
 Node.js library to access thetvdb's new (dev) API
 
+```javascript
 var auth = {
    "apikey": "theapikey",
    "username": "theusername",
@@ -8,8 +9,10 @@ var auth = {
 }
 
 var tv = new TheTvDb();
+```
 
 ## search for a tv show
+```javascript
 tv.auth(config.tvdb.auth).then(function(data){
    return tv.search(search);
 }).then(function(results){
@@ -17,8 +20,9 @@ tv.auth(config.tvdb.auth).then(function(data){
 }).error(function(err){
    console.log(err.message);
 });
-
+```
 #### search results
+```javascript
 { 
   results: [ {
     aliases: [],
@@ -32,8 +36,9 @@ tv.auth(config.tvdb.auth).then(function(data){
   } ],
   resultCount: 1 
 }
-
+```
 ## get tv show details.
+```javascript
 tv.auth(config.tvdb.auth).then(function(data){
    return tv.getShowWithImages(259972);
 }).then(function(result){
@@ -41,9 +46,9 @@ tv.auth(config.tvdb.auth).then(function(data){
 }).error(function(err){
    console.log(err.message);
 });
-
+```
 ### show result for id 259972
-
+```javascript
 { 
   id: 259972,
   seriesName: 'Gravity Falls',
@@ -68,3 +73,4 @@ tv.auth(config.tvdb.auth).then(function(data){
   addedBy: 201821,
   fanart: 'fanart/original/259972-1.jpg' 
 }
+```
