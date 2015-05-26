@@ -61,10 +61,7 @@ TheTvDb.prototype.authRequest = function(url,query){
 };
 
 
-TheTvDb.prototype.updateImagePath = function(item,imageKey){
-   if(item[imageKey]){
-      item[imageKey] = this.imageBase+item[imageKey];
-   }
+TheTvDb.prototype.updateImagePath = function(item){
    if(item.banner){
       item.banner = this.imageBase+item.banner;
    }
@@ -78,10 +75,10 @@ TheTvDb.prototype.updateImagePath = function(item,imageKey){
    return item;
 }
 
-TheTvDb.prototype.updateImagePaths = function(results,keyName){
+TheTvDb.prototype.updateImagePaths = function(results){
    var self = this;
    _.forEach(results, function(item, key) {
-      results[key] = self.updateImagePath(item,keyName);
+      results[key] = self.updateImagePath(item);
    });
    return results;
 }
@@ -106,6 +103,7 @@ TheTvDb.prototype.search = function(searchQuery){
    return self.getRequest(url, { "name": searchQuery }).then(function(data){
       var output = {"results": [], "resultCount": 0 };
       if(data && data.data){
+         output.results = data.data;
          output.resultCount = output.results.length;
       }
       return output;
