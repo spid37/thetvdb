@@ -1,22 +1,28 @@
 var request = require('superagent');
-var Promise = require("bluebird");
-var _ = require("lodash");
+var Promise = require('bluebird');
+var _ = require('lodash');
 
+
+// search and fetch tv show details.
+// calls are all (bluebird) promises
 function TheTvDb() {
-   this.baseUrl = "https://api-dev.thetvdb.com/";
+   // api base url
+   this.baseUrl = 'https://api-dev.thetvdb.com/';
 
    this.token = null;
-
+   // image url to prepend to image results
    this.imageBase = 'http://www.thetvdb.com/banners/';
 }
 
+// get request used to fetch data from api
+// uses superagent in a blueird promise
 TheTvDb.prototype.getRequest = function(url,query){
    var self = this;
    return new Promise(function(resolve,reject){
       request
       .get(url)
       .set('Authorization', 'Bearer '+self.token)
-      .set('Accept-Language', "en")
+      .set('Accept-Language', 'en')
       .accept('application/json')
       .query(query)
       .end(function(err, res){
@@ -27,12 +33,13 @@ TheTvDb.prototype.getRequest = function(url,query){
             resolve(results);
          }else{
             //console.log(res);
-            reject(new Error("failed to get data"));
+            reject(new Error('Failed to get data'));
          }
       });
    });
 };
 
+// post the auth request
 TheTvDb.prototype.authRequest = function(url,query){
    return new Promise(function(resolve,reject){
       request
@@ -47,7 +54,7 @@ TheTvDb.prototype.authRequest = function(url,query){
             if(err){
                return reject(err);
             }
-            reject(new Error("Auth failed."));
+            reject(new Error('Auth failed.'));
          }
       });
    });
@@ -79,20 +86,24 @@ TheTvDb.prototype.updateImagePaths = function(results,keyName){
    return results;
 }
 
+// auth needs to be called before the first call
+// if successful the token will be stored into the class variable
+// and added on the future request.
 TheTvDb.prototype.auth = function(credentials){
    var self = this;
-   var endPoint = this.baseUrl+"login";
-   return self.authRequest(endPoint, credentials ).then(function(data){
+   var url = this.baseUrl+'login';
+   return self.authRequest(url, credentials ).then(function(data){
       if(data.token){
          self.token = data.token;
       }
    });
 }
 
+// search for a show.
 TheTvDb.prototype.search = function(searchQuery){
    var self = this;
-   var endPoint = this.baseUrl+"search/series";
-   return self.getRequest(endPoint, { "name": searchQuery }).then(function(data){
+   var url = this.baseUrl+'search/series';
+   return self.getRequest(url, { "name": searchQuery }).then(function(data){
       var output = {"results": [], "resultCount": 0 };
       if(data && data.data){
          output.results = self.updateImagePaths(data.data);
@@ -102,12 +113,15 @@ TheTvDb.prototype.search = function(searchQuery){
    });
 }
 
+// get a show details, if successfil then get the top images.
 TheTvDb.prototype.getShow = function(showId){
    var self = this;
-   var endPoint = this.baseUrl+"series/"+ showId;
+   var url = this.baseUrl+"series/"+ showId;
    var output = {};
-   return self.getRequest(endPoint).then(function(data){
+   return self.getRequest(url).then(function(data){
       if(data && data.data){
+         // the url isnt included on the image data
+         // add it on here
          output = self.updateImagePath(data.data);
          return output;
       }
@@ -119,6 +133,9 @@ TheTvDb.prototype.getShow = function(showId){
    });
 }
 
+// get the top images and return only the url to image.
+// if image type does not exist, the promise settle should
+// continue with no error thrown
 TheTvDb.prototype.getSeriesImages = function(showId){
    var self = this;
 
@@ -142,18 +159,21 @@ TheTvDb.prototype.getSeriesImages = function(showId){
    });
 }
 
+// get all images of type for a show
+// will return the higest rated image
 TheTvDb.prototype.getImage = function(showId,type){
    var self = this;
-   var endPoint = this.baseUrl+"/series/"+showId+"/images/query";
-   return self.getRequest(endPoint,{ "keyType": type }).then(function(data){
+   var url = this.baseUrl+'/series/'+showId+'/images/query';
+   return self.getRequest(url,{ "keyType": type }).then(function(data){
       if(data && data.data){
-         var images = self.updateImagePaths(data.data,"fileName");
+         var images = self.updateImagePaths(data.data,'fileName');
          return self.getTopImage(images);
       }
       return {};
    });
 }
 
+// find the highest rating image from the results given from getImage
 TheTvDb.prototype.getTopImage = function(images){
    return _.max(images, function(image) {
       return _.get(images, 'ratingsInfo.average', 0);
