@@ -106,7 +106,6 @@ TheTvDb.prototype.search = function(searchQuery){
    return self.getRequest(url, { "name": searchQuery }).then(function(data){
       var output = {"results": [], "resultCount": 0 };
       if(data && data.data){
-         output.results = self.updateImagePaths(data.data);
          output.resultCount = output.results.length;
       }
       return output;
@@ -117,18 +116,22 @@ TheTvDb.prototype.search = function(searchQuery){
 TheTvDb.prototype.getShow = function(showId){
    var self = this;
    var url = this.baseUrl+"series/"+ showId;
-   var output = {};
    return self.getRequest(url).then(function(data){
       if(data && data.data){
-         // the url isnt included on the image data
-         // add it on here
-         output = self.updateImagePath(data.data);
-         return output;
+         return data.data;
       }
       throw Error("Failed to find show: "+showId);
-   }).then(function(){
+   });
+}
+
+TheTvDb.prototype.getShowWithImages = function(showId){
+   var self = this;
+   var output = {};
+   return self.getShow(showId).then(function(result){
+      output = result;
       return self.getSeriesImages(showId);
    }).then(function(images){
+      // merge output and images.
       return _.assign(output,images);
    });
 }
@@ -166,8 +169,7 @@ TheTvDb.prototype.getImage = function(showId,type){
    var url = this.baseUrl+'/series/'+showId+'/images/query';
    return self.getRequest(url,{ "keyType": type }).then(function(data){
       if(data && data.data){
-         var images = self.updateImagePaths(data.data,'fileName');
-         return self.getTopImage(images);
+         return self.getTopImage(data.data);
       }
       return {};
    });
