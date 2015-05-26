@@ -13,7 +13,7 @@ var tv = new TheTvDb();
 
 ## search for a tv show
 ```javascript
-tv.auth(config.tvdb.auth).then(function(data){
+tv.auth(auth).then(function(data){
    return tv.search(search);
 }).then(function(results){
    console.log(results);
@@ -39,7 +39,7 @@ tv.auth(config.tvdb.auth).then(function(data){
 ```
 ## get tv show details.
 ```javascript
-tv.auth(config.tvdb.auth).then(function(data){
+tv.auth(auth).then(function(data){
    return tv.getShowWithImages(259972);
 }).then(function(result){
    console.log(result);
