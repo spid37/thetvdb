@@ -176,8 +176,26 @@ TheTvDb.prototype.getImage = function(showId,type){
 // find the highest rating image from the results given from getImage
 TheTvDb.prototype.getTopImage = function(images){
    return _.max(images, function(image) {
-      return _.get(images, 'ratingsInfo.average', 0);
+      return _.get(image, 'ratingsInfo.average', 0);
    });
 }
+
+TheTvDb.prototype.getImageData = function(imagePath){
+   var self = this;
+   var imageUrl = this.imageBase+imagePath;
+   return new Promise(function(resolve,reject){
+      request
+      .get(imageUrl)
+      .end(function(err, res){
+         if (res && res.ok) {
+            resolve(res.body);
+         }else{
+            reject(new Error('Failed to get image data'));
+         }
+      });
+   });
+};
+
+
 
 module.exports = TheTvDb;
