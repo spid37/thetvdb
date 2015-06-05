@@ -180,20 +180,10 @@ TheTvDb.prototype.getTopImage = function(images){
    });
 }
 
-TheTvDb.prototype.getImageData = function(imagePath){
+TheTvDb.prototype.getImageUrl = function(imagePath){
    var self = this;
    var imageUrl = this.imageBase+imagePath;
-   return new Promise(function(resolve,reject){
-      request
-      .get(imageUrl)
-      .end(function(err, res){
-         if (res && res.ok) {
-            resolve(res.body);
-         }else{
-            reject(new Error('Failed to get image data'));
-         }
-      });
-   });
+   return imageUrl;
 };
 
 
